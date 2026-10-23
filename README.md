@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="screenshots/desktop.png" alt="IR Mate web app controlling an air conditioner" width="720">
+  <img src="screenshots/desktop-dark.png" alt="IR Mate web app controlling an air conditioner" width="720">
 </p>
 <h1 align="center">XIAO IR Mate AC Scheduler</h1>
 <p align="center">
@@ -24,12 +24,11 @@ control page on the device itself, so it keeps working with the laptop off and e
 
 <table>
   <tr>
-    <td><img src="screenshots/mobile-dark.png" width="260"><br><sub>AC remote: temperature, power, mode, fan, swing</sub></td>
-    <td><img src="screenshots/mobile-remotes.png" width="260"><br><sub>Sleep timer, tonight's schedule, learned TV and fan buttons</sub></td>
+    <td><img src="screenshots/phone-dark.png" width="260"><br><sub>On a phone: AC remote, sleep timer, tonight's schedule, other remotes</sub></td>
+    <td><img src="screenshots/phone-light.png" width="260"><br><sub>Follows the phone's light or dark theme</sub></td>
   </tr>
   <tr>
-    <td><img src="screenshots/mobile-schedule.png" width="260"><br><sub>Editing a schedule step</sub></td>
-    <td><img src="screenshots/mobile-light.png" width="260"><br><sub>Follows the phone's light or dark theme</sub></td>
+    <td colspan="2"><img src="screenshots/desktop-light.png" width="720"><br><sub>Two-column layout on wider screens</sub></td>
   </tr>
 </table>
 

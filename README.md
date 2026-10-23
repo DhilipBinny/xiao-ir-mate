@@ -51,7 +51,7 @@ control page on the device itself, so it keeps working with the laptop off and e
 
 ### Security
 - Encrypted API, own OTA password, password-protected web page and hotspot
-- Every credential lives in a gitignored `secrets.yaml`
+- Every credential lives in a gitignored `secrets.yaml`; the build refuses the example placeholders
 
 ### What it doesn't have (by design)
 - **No Home Assistant requirement**: the API is still there if you want to add it later
@@ -66,9 +66,10 @@ Any brand with an ESPHome IR climate driver. Set `ac_platform` in `ir-mate.yaml`
 |---|---|
 | `daikin` | Daikin ARC43xxx remotes. **Tested** with ARC433A55. |
 | `daikin_arc`, `daikin_brc` | Other Daikin remote families |
-| `gree`, `midea_ir`, `mitsubishi`, `coolix`, `toshiba`, `fujitsu_general`, `climate_ir_lg`, `whirlpool` | Untested here |
+| `midea_ir`, `mitsubishi`, `coolix`, `toshiba`, `fujitsu_general`, `climate_ir_lg`, `whirlpool` | Untested here |
 | `hitachi_ac344`, `hitachi_ac424`, `tcl112`, `ballu`, `delonghi`, `emmeti`, `noblex`, `whynter`, `zhlt01` | Untested here |
-| `heatpumpir` | Library covering many more brands; untested here |
+| `gree` | Untested here. Also add `model:` (e.g. `generic`) to the climate block in `packages/ac.yaml` |
+| `heatpumpir` | Library covering many more brands; untested here. Also add `protocol:`, `horizontal_default:`, `vertical_default:`, `min_temperature:` and `max_temperature:` to the climate block in `packages/ac.yaml` |
 
 Which driver matches your remote is listed in
 [ESPHome IR Remote Climate](https://esphome.io/components/climate/climate_ir/).
@@ -93,6 +94,7 @@ cp secrets.example.yaml secrets.yaml
 ```
 
 1. **Fill in `secrets.yaml`**: Wi-Fi, passwords, and a fresh API key and OTA password (commands are in the file).
+   The build stops with an error until the API key and hotspot password are replaced.
 2. **Edit the settings at the top of `ir-mate.yaml`**: `ac_name`, `ac_platform`, temperature range, schedule defaults and `timezone`.
 3. **Flash over USB-C** the first time (the stock firmware's OTA password differs from yours):
 
@@ -142,10 +144,13 @@ irmate press "Sleep timer 2h"
 - **Clock after power loss**: schedules wait until the device can reach an SNTP server again.
 - **Learning long AC signals**: the ESP32-C3 receiver captures about 384 pulses, so AC remotes
   (often 500+) can't be learned. That's why the AC uses a protocol driver; learning is for short remotes.
+- **Home network only**: the web page is plain HTTP. Never port-forward it or expose it to the
+  internet. While you're logged in, a malicious web page open in the same browser could also send it
+  commands (a limitation of ESPHome's web server), so log in from a browser you trust.
 
 ## Tech Stack
 
-- **Firmware**: ESPHome 2026.10 (ESP-IDF), ESP32-C3
+- **Firmware**: ESPHome 2026.10 (Arduino framework), ESP32-C3
 - **AC control**: ESPHome `climate_ir` drivers
 - **IR learning**: Seeed's `Flash_comp` component (pinned commit), raw signals stored in NVS
 - **Web app**: vanilla JavaScript and CSS, embedded via `web_server` `js_include`; ESPHome REST API and Server-Sent Events

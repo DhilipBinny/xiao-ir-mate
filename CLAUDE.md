@@ -29,8 +29,9 @@ system Pythons without `venv` break the ESP-IDF toolchain setup.
 
 ## Config Rules
 
-- Credentials only via `!secret`; never inline them, never print them. `secrets.example.yaml` must
-  keep validating in CI (non-zero dummy API key).
+- Credentials only via `!secret`; never inline them, never print them. `secrets.example.yaml`
+  placeholders must fail validation (invalid API key, too-short hotspot password) so nobody flashes
+  known values; CI substitutes throwaway values before `esphome config`.
 - AC-specific values are substitutions (`ac_platform`, `ac_name`, temperature range, schedule
   defaults, `timezone`). Don't hardcode a brand or name in packages or the web app.
 - Runtime-tunable values are template `datetime` / `number` / `switch` entities with restore, so

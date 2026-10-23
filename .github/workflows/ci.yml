@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -21,9 +24,14 @@ jobs:
       - name: Install ESPHome
         run: pip install "esphome==2026.10.0"
 
+      # The example placeholders fail validation on purpose; CI fills in throwaway values
       - name: Validate firmware config
         run: |
-          cp secrets.example.yaml secrets.yaml
+          API_KEY=$(python -c "import secrets,base64;print(base64.b64encode(secrets.token_bytes(32)).decode())")
+          AP_PASSWORD=$(python -c "import secrets;print(secrets.token_hex(8))")
+          sed -e "s|^api_key: .*|api_key: \"$API_KEY\"|" \
+              -e "s|^ap_password: .*|ap_password: \"$AP_PASSWORD\"|" \
+              secrets.example.yaml > secrets.yaml
           esphome config ir-mate.yaml > /dev/null
 
       - name: Check web app syntax

@@ -1,0 +1,14 @@
+# Embedded web app. web/app.js and web/app.css are compiled into the firmware,
+# so the page works offline (even in hotspot mode). js_url is empty so the
+# stock ESPHome UI is not fetched; the app loads it on demand for "Classic view".
+
+web_server:
+  port: 80
+  version: 3
+  js_url: ""
+  js_include: web/app.js
+  css_include: web/app.css
+  auth:
+    type: digest
+    username: admin
+    password: !secret web_password

@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install ESPHome
+        run: pip install "esphome==2026.10.0"
+
+      - name: Validate firmware config
+        run: |
+          cp secrets.example.yaml secrets.yaml
+          esphome config ir-mate.yaml > /dev/null
+
+      - name: Check web app syntax
+        run: node --check web/app.js

@@ -1,0 +1,10 @@
+# ESPHome build cache
+/.esphome/
+
+# Credentials and installation-specific notes
+/secrets.yaml
+/NOTES.local.md
+
+*.log
+*.bak
+__pycache__/

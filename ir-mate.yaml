@@ -1,0 +1,47 @@
+# XIAO Smart IR Mate — standalone AC scheduler
+#
+# Edit the settings below for your AC and location, put your Wi-Fi and
+# passwords in secrets.yaml (copy secrets.example.yaml), then flash:
+#   esphome run ir-mate.yaml
+#
+# Everything else lives in packages/:
+#   seeed_base.yaml  hardware, IR learning, touch pad, LED (derived from Seeed's stock firmware)
+#   network.yaml     Wi-Fi, API, OTA, clock, diagnostics
+#   ac.yaml          AC climate control and sleep timer
+#   schedule.yaml    nightly on / warmer / off schedule
+#   remotes.yaml     named buttons for other IR remotes
+#   web.yaml         embedded web app (web/app.js, web/app.css)
+
+substitutions:
+  # Device
+  name: "xiao-smart-ir-mate"
+  friendly_name: "XIAO Smart IR Mate"
+
+  # Your AC. ac_platform is any ESPHome IR climate platform, e.g. daikin,
+  # daikin_arc, gree, midea_ir, mitsubishi, coolix, toshiba, fujitsu_general,
+  # climate_ir_lg, whirlpool. See https://esphome.io/components/climate/climate_ir/
+  ac_name: "Daikin AC"
+  ac_platform: "daikin"
+  ac_min_temp: "18"
+  ac_max_temp: "30"
+
+  # Defaults for the nightly schedule (editable later in the web app)
+  schedule_on_time: "22:00:00"
+  schedule_on_temp: "25"
+  schedule_step_time: "02:00:00"
+  schedule_step_temp: "26"
+  schedule_off_time: "07:00:00"
+
+  # Location: IANA timezone the schedule runs in
+  timezone: "Asia/Singapore"
+
+  # Seeed's Flash_comp component, pinned to a reviewed commit
+  seeed_components_ref: "a5097fd673dfdf44762ab5887196509f3ab900e7"
+
+packages:
+  seeed_base: !include packages/seeed_base.yaml
+  network: !include packages/network.yaml
+  ac: !include packages/ac.yaml
+  schedule: !include packages/schedule.yaml
+  remotes: !include packages/remotes.yaml
+  web: !include packages/web.yaml

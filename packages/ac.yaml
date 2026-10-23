@@ -1,0 +1,62 @@
+# AC control through ESPHome's IR climate driver for your brand (ac_platform),
+# plus a sleep timer. The driver builds complete IR frames, so nothing needs to be learned.
+
+climate:
+  - platform: ${ac_platform}
+    id: ac
+    name: "${ac_name}"
+    transmitter_id: my_transmitter
+    visual:
+      min_temperature: ${ac_min_temp}
+      max_temperature: ${ac_max_temp}
+      temperature_step: 1
+
+button:
+  - platform: template
+    name: "Sleep timer 1h"
+    on_press:
+      - script.execute: { id: sleep_timer, minutes: 60 }
+  - platform: template
+    name: "Sleep timer 2h"
+    on_press:
+      - script.execute: { id: sleep_timer, minutes: 120 }
+  - platform: template
+    name: "Sleep timer 3h"
+    on_press:
+      - script.execute: { id: sleep_timer, minutes: 180 }
+  - platform: template
+    name: "Sleep timer cancel"
+    on_press:
+      - script.stop: sleep_timer
+      - text_sensor.template.publish:
+          id: sleep_timer_status
+          state: "Not set"
+
+script:
+  # Restart mode: pressing another sleep button replaces the running timer
+  - id: sleep_timer
+    mode: restart
+    parameters:
+      minutes: int
+    then:
+      - lambda: |-
+          auto now = id(sntp_time).now();
+          if (now.is_valid()) {
+            auto off_at = ESPTime::from_epoch_local(now.timestamp + minutes * 60);
+            id(sleep_timer_status).publish_state(off_at.strftime("AC off at %H:%M"));
+          } else {
+            id(sleep_timer_status).publish_state(to_string(minutes) + " min timer running");
+          }
+      - delay: !lambda return minutes * 60 * 1000;
+      - climate.control:
+          id: ac
+          mode: "OFF"
+      - text_sensor.template.publish:
+          id: sleep_timer_status
+          state: "Not set"
+      - logger.log: "Sleep timer turned the AC off"
+
+text_sensor:
+  - platform: template
+    id: sleep_timer_status
+    name: "Sleep timer"

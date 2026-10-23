@@ -1,0 +1,122 @@
+# Named buttons for other IR remotes (TV, fan, ...), built on the 10 learning
+# slots in seeed_base.yaml. The web app reads the names and learn progress from here.
+
+button:
+  - platform: template
+    id: learn_cancel
+    name: "Learn cancel"
+    on_press:
+      - script.stop: learn_timeout
+      - lambda: id(is_learning_mode) = false;
+      - switch.turn_off: vibration_switch
+      - text_sensor.template.publish:
+          id: ir_learn_status
+          state: "idle"
+
+  # Deletes the signal in the slot currently chosen in signal_select
+  - platform: template
+    id: clear_selected_signal
+    name: "Clear selected signal"
+    on_press:
+      - lambda: |-
+          id(signal_nvs).clear_signal_by_index(id(signal_select_index));
+          id(send_data_vector).clear();
+          ESP_LOGI("ir", "Cleared signal index: %d", id(signal_select_index));
+      - script.execute:
+          id: is_learned_signal_script
+          is_learned_signal: false
+      - script.execute: refresh_learned_slots
+
+script:
+  # Publishes one character per slot ("1" = signal stored)
+  - id: refresh_learned_slots
+    then:
+      - lambda: |-
+          std::string slots;
+          for (int i = 0; i < 10; i++) {
+            slots += id(signal_nvs).load_from_nvs<long int>(i).empty() ? '0' : '1';
+          }
+          id(ir_learned_slots).publish_state(slots);
+
+text_sensor:
+  - platform: template
+    id: ir_learned_slots
+    name: "Remote learned slots"
+
+  # idle | learning | saved | timeout
+  - platform: template
+    id: ir_learn_status
+    name: "Remote learn status"
+
+# Button names, one per slot. Empty name and no signal = unused slot.
+text:
+  - platform: template
+    name: "Remote name 0"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 1"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 2"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 3"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 4"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 5"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 6"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 7"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 8"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""
+  - platform: template
+    name: "Remote name 9"
+    mode: text
+    optimistic: true
+    restore_value: true
+    max_length: 24
+    initial_value: ""

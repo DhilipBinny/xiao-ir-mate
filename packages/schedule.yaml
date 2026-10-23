@@ -1,0 +1,106 @@
+# Nightly schedule: on (cool), warmer step, off. Times, temperatures and the
+# enabled switches are editable at runtime and survive reboots; the
+# substitutions in ir-mate.yaml only set the first-boot defaults.
+
+datetime:
+  - platform: template
+    id: ac_on_time
+    type: time
+    name: "AC auto-on time"
+    optimistic: true
+    initial_value: "${schedule_on_time}"
+    restore_value: true
+    time_id: sntp_time
+    on_time:
+      - if:
+          condition:
+            switch.is_on: ac_auto_on_enabled
+          then:
+            - climate.control:
+                id: ac
+                mode: COOL
+                target_temperature: !lambda return id(ac_on_temperature).state;
+            - logger.log: "Scheduled AC power on sent"
+
+  # Only adjusts the temperature when the AC is already running
+  - platform: template
+    id: ac_night_step_time
+    type: time
+    name: "AC night step time"
+    optimistic: true
+    initial_value: "${schedule_step_time}"
+    restore_value: true
+    time_id: sntp_time
+    on_time:
+      - if:
+          condition:
+            and:
+              - switch.is_on: ac_night_step_enabled
+              - lambda: return id(ac).mode != climate::CLIMATE_MODE_OFF;
+          then:
+            - climate.control:
+                id: ac
+                target_temperature: !lambda return id(ac_night_step_temperature).state;
+            - logger.log: "Scheduled night temperature step sent"
+
+  - platform: template
+    id: ac_off_time
+    type: time
+    name: "AC auto-off time"
+    optimistic: true
+    initial_value: "${schedule_off_time}"
+    restore_value: true
+    time_id: sntp_time
+    on_time:
+      - if:
+          condition:
+            switch.is_on: ac_auto_off_enabled
+          then:
+            - climate.control:
+                id: ac
+                mode: "OFF"
+            - logger.log: "Scheduled AC power off sent"
+
+number:
+  - platform: template
+    id: ac_on_temperature
+    name: "AC auto-on temperature"
+    optimistic: true
+    min_value: ${ac_min_temp}
+    max_value: ${ac_max_temp}
+    step: 1
+    initial_value: ${schedule_on_temp}
+    restore_value: true
+    unit_of_measurement: "°C"
+    mode: box
+
+  - platform: template
+    id: ac_night_step_temperature
+    name: "AC night step temperature"
+    optimistic: true
+    min_value: ${ac_min_temp}
+    max_value: ${ac_max_temp}
+    step: 1
+    initial_value: ${schedule_step_temp}
+    restore_value: true
+    unit_of_measurement: "°C"
+    mode: box
+
+switch:
+  - platform: template
+    id: ac_auto_on_enabled
+    name: "AC auto-on enabled"
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: template
+    id: ac_night_step_enabled
+    name: "AC night step enabled"
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: template
+    id: ac_auto_off_enabled
+    name: "AC auto-off enabled"
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
